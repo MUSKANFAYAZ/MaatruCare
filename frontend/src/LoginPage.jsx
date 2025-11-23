@@ -38,7 +38,7 @@ const LoginPage = () => {
         navigate("/dashboard");
       } catch (err) {
         console.error(err);
-        setError("Google Login Failed. Please try again.");
+        setError(err.response?.data?.message || "Google Login Failed");
       }
     },
     onError: () => setError("Google Login Failed"),
@@ -59,7 +59,7 @@ const LoginPage = () => {
       navigate("/dashboard");
     } catch (err) {
       console.error("FB Login Error:", err);
-      setError("Facebook Login Failed");
+      setError(err.response?.data?.message || "Facebook Login Failed");
     }
   };
 

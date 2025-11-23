@@ -274,20 +274,25 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-// POST /api/auth/google
+/// POST /api/auth/google
 router.post('/google', async (req, res) => {
   try {
-    const { token, role } = req.body;
+    const { token, role } = req.body; 
 
-    //Verify token with Google
     const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: `Bearer ${token}` }
     });
+    const { email, name } = googleRes.data;
 
-    const { email, name, sub } = googleRes.data;
     let user = await User.findOne({ email });
 
     if (user) {
+     if (user.role !== role) {
+        return res.status(400).json({ 
+          message: `Account exists as a ${user.role}. Please login as a ${user.role}.` 
+        });
+      }
+
       const jwtToken = jwt.sign(
         { id: user._id, role: user.role }, 
         process.env.JWT_SECRET, 
@@ -308,8 +313,8 @@ router.post('/google', async (req, res) => {
       fullName: name,
       email: email,
       password: hashedPassword,
-      role: role || 'mother', 
-      isVerified: true,      
+      role: role || 'mother', // Use the role from frontend for new users
+      isVerified: true,
       authProvider: 'google'
     });
 
@@ -327,7 +332,7 @@ router.post('/google', async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Google Auth Backend Error:", error);
+    console.error("Google Auth Error:", error);
     res.status(400).json({ message: "Google Login Failed" });
   }
 });
@@ -337,49 +342,48 @@ router.post('/facebook', async (req, res) => {
   try {
     const { accessToken, userID, role } = req.body;
 
-    console.log("1. Received FB Data:", { userID, role }); // Debug Log
-
-    const url = `https://graph.facebook.com/v15.0/${userID}?fields=id,name,email,picture&access_token=${accessToken}`;
-    
+    const url = `https://graph.facebook.com/v15.0/${userID}?fields=id,name,email&access_token=${accessToken}`;
     const fbRes = await axios.get(url);
-    console.log("2. Facebook Graph Response:", fbRes.data); // <--- CRITICAL LOG
-
     const { email, name, id } = fbRes.data;
 
+    // Handle "No Email" case
     const userEmail = email || `${id}@facebook.com`;
 
     let user = await User.findOne({ email: userEmail });
 
     if (user) {
-      console.log("3. User found. Logging in.");
+      if (user.role !== role) {
+        return res.status(400).json({ 
+          message: `Account exists as a ${user.role}. Please login as a ${user.role}.` 
+        });
+      }
+
       const token = jwt.sign(
         { id: user._id, role: user.role }, 
         process.env.JWT_SECRET, 
         { expiresIn: '1d' }
       );
+      
       return res.json({
         token,
         user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role }
       });
     }
 
-    console.log("3. User not found. Creating new account.");
-    
     const randomPassword = Math.random().toString(36).slice(-8);
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
     user = new User({
       fullName: name,
-      email: userEmail, 
+      email: userEmail,
       password: hashedPassword,
-      role: role || 'mother',
+      role: role || 'mother', // Use the role from frontend
       isVerified: true,
       authProvider: 'facebook'
     });
 
     await user.save();
-    console.log("4. User Saved!");
 
     const token = jwt.sign(
       { id: user._id, role: user.role }, 
@@ -393,7 +397,7 @@ router.post('/facebook', async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Facebook Backend Error:", error.response ? error.response.data : error.message);
+    console.error("Facebook Auth Error:", error.response ? error.response.data : error.message);
     res.status(400).json({ message: "Facebook Login Failed" });
   }
 });
