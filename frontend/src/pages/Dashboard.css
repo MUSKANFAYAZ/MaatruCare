@@ -8,16 +8,16 @@
   --text-dark: #2D3436;
   --text-light: #636E72;
   --border-color: #E8E8E8;
-  --card-vertical-gap: 12px;     
-  --card-padding: 12px;        
-  --dashboard-padding: 12px;      
+  --card-vertical-gap: 12px;      /* less space between stacked cards */
+  --card-padding: 12px;           /* reduce the padding inside cards */
+  --dashboard-padding: 12px;      /* outer padding */
   --header-margin-bottom: 16px;
   --base-font-size: 14px;
 
 }
 
 
-
+/* Add the top-bar / feature box styles here (after :root / spacing) */
 .dashboard-top-bar {
   display: flex;
   justify-content: space-between;
@@ -48,7 +48,7 @@
   align-items: center;
 }
 
-
+/* feature box (profile) */
 .feature-box {
   display: flex;
   align-items: center;
@@ -70,6 +70,7 @@
   text-decoration-thickness: 2px;
 }
 
+/* logout button (keeps existing look but ensures placement) */
 .logout-btn {
   padding: 8px 14px;
   background: rgba(242, 129, 127, 0.95);
@@ -86,7 +87,7 @@
   text-decoration-thickness: 2px;
 }
 
-
+/* responsive tweaks for the top bar */
 @media (max-width: 768px) {
   .dashboard-top-bar {
     flex-direction: column;
@@ -99,22 +100,22 @@
   }
 }
 
-
+/* Add vertical gap between stacked cards in each column */
 .dashboard-left .dashboard-card + .dashboard-card,
 .dashboard-middle .dashboard-card + .dashboard-card,
 .dashboard-right .dashboard-card + .dashboard-card {
   margin-top: var(--card-vertical-gap);
 }
 
-
+/* If you need different spacing per column, override individually */
 .dashboard-middle .dashboard-card + .dashboard-card {
-  margin-top: 36px;
+  margin-top: 36px; /* bigger gap between quote and happy moments */
 }
 .dashboard-right .dashboard-card + .dashboard-card {
-  margin-top: 32px; 
+  margin-top: 32px; /* gap between notifications and journal */
 }
 .dashboard-left .dashboard-card + .dashboard-card {
-  margin-top: 24px;
+  margin-top: 24px; /* gap between mood trends and emoji input */
 }
 
 * {
@@ -122,14 +123,12 @@
 }
 
 .dashboard-container {
-  padding: 1rem;
-  font-family: cursive;
   min-height: 100vh;
   background: linear-gradient(135deg, #FFF9F6 0%, #FFF9F6 100%);
 }
 
 .dashboard-header {
-  font-family: cursive;
+  text-align: center;
   margin-bottom: 40px;
   color: rgb(47, 47, 47);
   font-style: italic;
@@ -156,7 +155,6 @@
 }
 
 .dashboard-card {
-  font-family: cursive;
   background: var(--card-bg);
   border-radius: 12px;
   padding: 25px;
@@ -217,7 +215,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 12px 1px;
+  padding: 12px 8px;
   border: 2px solid;
   border-radius: 10px;
   background: transparent;
@@ -245,7 +243,6 @@
 }
 
 .save-mood-btn {
-  font-family: cursive;
   padding: 12px 24px;
   background: var(--primary-color);
   color: white;
@@ -291,7 +288,6 @@
 }
 
 .journal-submit-btn {
-   font-family: cursive;
   padding: 10px 20px;
   background: rgba(242, 129, 127, 0.95);
   color: var(--text-dark);
@@ -370,7 +366,6 @@
 }
 
 .moment-submit-btn {
-   font-family: cursive;
   padding: 10px 20px;
   background: rgba(242, 129, 127, 0.95);
   color: var(--text-dark);
@@ -426,7 +421,6 @@
 .moment-text.collapsed {
   display: -webkit-box;
   -webkit-line-clamp: 3; /* 3 lines preview */
-  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -476,7 +470,6 @@
 .entry-text.collapsed {
   display: -webkit-box;
   -webkit-line-clamp: 4; /* show 4 lines */
-  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

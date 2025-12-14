@@ -196,8 +196,3 @@
 .link-highlight:hover {
   text-decoration: underline;
 }
-
-textarea.form-input {
-  font-family: inherit; 
-}
-

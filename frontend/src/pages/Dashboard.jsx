@@ -17,7 +17,7 @@ const handleLogout = () => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const userRole = localStorage.getItem('userRole');
-
+  
   const [moodData, setMoodData] = useState([]);
   const [journalEntries, setJournalEntries] = useState([]);
   const [happyMoments, setHappyMoments] = useState([]);
@@ -98,6 +98,7 @@ const Dashboard = () => {
 
   return (
   <div className="dashboard-wrapper">
+    {/* Top bar: app title, role, profile feature box and logout */}
     <div className="dashboard-top-bar">
       <div className="top-bar-left">
         <h1 className="app-title">मातृCare</h1>
@@ -106,8 +107,7 @@ const Dashboard = () => {
       <div className="header-actions">
         <button
           className="feature-box"
-          title="My Profile"
-          onClick={() => navigate('/profile-view')}
+          title="Go to profile"
         >
           <div className="feature-label">Profile</div>
         </button>
