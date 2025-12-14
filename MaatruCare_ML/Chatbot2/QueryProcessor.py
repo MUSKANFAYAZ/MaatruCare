@@ -2,7 +2,7 @@ from embedder import embed_user_query
 from vectorstore import search_in_pinecone
 from llm import query_llm_with_context
 
-def process_user_query(query: str):
+def process_user_query(query: str, debug: bool = False):
     
     # Embed the user's query to create a vector representation
     query_vector = embed_user_query(query)
@@ -19,4 +19,4 @@ if __name__ == "__main__":
         user_query = input("You: ")
         if user_query.strip().lower() in ["quit","exit","bye"]:
             break
-        process_user_query(user_query)
+        process_user_query(user_query, debug=False)
