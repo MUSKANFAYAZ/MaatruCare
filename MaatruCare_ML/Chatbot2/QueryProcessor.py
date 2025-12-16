@@ -12,11 +12,6 @@ def process_user_query(query: str, debug: bool = False):
     
     # Send the user query and the search results (query + context) to the LLm for generating response
     generated_response = query_llm_with_context(query, matched_chunks)
-    print(generated_response)
+    return generated_response
     
-if __name__ == "__main__":
-    while True:
-        user_query = input("You: ")
-        if user_query.strip().lower() in ["quit","exit","bye"]:
-            break
-        process_user_query(user_query, debug=False)
+    
