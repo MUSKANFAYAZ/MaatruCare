@@ -1,93 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
-import MoodTrendChart from './components/MoodTrendChart';
 import MoodInput from './components/MoodInput';
 import JournalSection from './components/JournalSection';
 import HappyMoments from './components/HappyMoments';
-import NotificationsPanel from './components/NotificationsPanel';
 import MotivationalQuote from './components/MotivationalQuote';
-
-const handleLogout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('userRole');
-  navigate('/login');
-};
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem('userRole');
-  
-  const [moodData, setMoodData] = useState([]);
+
   const [journalEntries, setJournalEntries] = useState([]);
   const [happyMoments, setHappyMoments] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [timeRange, setTimeRange] = useState('week');
   const [selectedMood, setSelectedMood] = useState(null);
 
   useEffect(() => {
-    loadMoodData();
     loadJournalEntries();
     loadHappyMoments();
-    loadNotifications();
-  }, [timeRange]);
+  }, []);
 
-  const loadMoodData = () => {
-    const mockData = generateMoodData(timeRange);
-    setMoodData(mockData);
+  const loadJournalEntries = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5000/api/journals", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+      setJournalEntries(data);
+    } catch (err) {
+      console.error("Error loading journals", err);
+    }
   };
 
-  const loadJournalEntries = () => {
-    const entries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
-    setJournalEntries(entries);
+  const loadHappyMoments = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5000/api/happymoments", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+      setHappyMoments(data);
+    } catch (err) {
+      console.error("Failed to load happy moments", err);
+    }
   };
 
-  const loadHappyMoments = () => {
-    const moments = JSON.parse(localStorage.getItem('happyMoments') || '[]');
-    setHappyMoments(moments);
+  const handleAddJournalEntry = async (entry) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5000/api/journals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ content: entry })
+      });
+
+      const newEntry = await res.json();
+      setJournalEntries([newEntry, ...journalEntries]);
+    } catch (err) {
+      console.error("Error adding journal", err);
+    }
   };
 
-  const loadNotifications = () => {
-    const notif = JSON.parse(localStorage.getItem('notifications') || '[]');
-    setNotifications(notif);
-  };
+  const handleAddHappyMoment = async (moment) => {
+    try {
+      const token = localStorage.getItem("token");
 
-  const generateMoodData = (range) => {
-    const moods = [1, 2, 3, 4, 5];
-    const labels = range === 'day' ? Array.from({length: 24}, (_, i) => `${i}:00`) 
-                 : range === 'week' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                 : Array.from({length: 30}, (_, i) => `Day ${i + 1}`);
-    
-    return labels.map((label, idx) => ({
-      label,
-      mood: moods[Math.floor(Math.random() * moods.length)]
-    }));
+      const res = await fetch("http://localhost:5000/api/happymoments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ description: moment })
+      });
+
+      const newMoment = await res.json();
+      setHappyMoments([newMoment, ...happyMoments]);
+    } catch (err) {
+      console.error("Failed to add happy moment", err);
+    }
   };
 
   const handleMoodSelect = (mood) => {
     setSelectedMood(mood);
-  };
-
-  const handleAddJournalEntry = (entry) => {
-    const newEntry = {
-      id: Date.now(),
-      date: new Date().toLocaleDateString(),
-      text: entry
-    };
-    const updated = [newEntry, ...journalEntries];
-    setJournalEntries(updated);
-    localStorage.setItem('journalEntries', JSON.stringify(updated));
-  };
-
-  const handleAddHappyMoment = (moment) => {
-    const newMoment = {
-      id: Date.now(),
-      date: new Date().toLocaleDateString(),
-      description: moment
-    };
-    const updated = [newMoment, ...happyMoments];
-    setHappyMoments(updated);
-    localStorage.setItem('happyMoments', JSON.stringify(updated));
   };
 
   const handleLogout = () => {
@@ -152,6 +158,7 @@ const Dashboard = () => {
           <div className="dashboard-card">
             <h2>How is your today?</h2>
             <MoodInput onMoodSelect={handleMoodSelect} selectedMood={selectedMood} />
+            
           </div>
         </div>
 
@@ -169,6 +176,6 @@ const Dashboard = () => {
       </div>
     </div>
   </div>
-);
+  );
 };
 export default Dashboard;

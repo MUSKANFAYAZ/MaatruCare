@@ -35,3 +35,11 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+const journalRoutes = require("./routes/journal");
+app.use("/api/journals", journalRoutes);
+
+const happyMomentRoutes = require("./routes/happymoment");
+app.use("/api/happymoments", happyMomentRoutes);
+
+
