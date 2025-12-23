@@ -184,6 +184,7 @@ body, button, input, select, textarea, .dashboard-container * {
   box-shadow: var(--card-shadow);
   border: none;
   transition: transform 0.2s ease;
+  margin-bottom: 10px;
 }
 
 .dashboard-card:hover {
