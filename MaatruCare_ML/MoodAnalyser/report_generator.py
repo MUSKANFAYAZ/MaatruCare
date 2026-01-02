@@ -9,6 +9,7 @@ from reportlab.lib.units import inch
 import io
 import os
 from bson import ObjectId
+from dotenv import load_dotenv
 
 
 MONGO_URI = os.getenv("MONGO_URI")
