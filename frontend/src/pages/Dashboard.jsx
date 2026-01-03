@@ -4,22 +4,17 @@ import "./Dashboard.css";
 import axios from "axios";
 import { CgProfile } from "react-icons/cg";
 import { IoMdLogOut } from "react-icons/io";
-import MoodTrendChart from "../components/MoodTrendChart";
 import MoodInput from "../components/MoodInput";
 import JournalSection from "../components/JournalSection";
 import HappyMoments from "../components/HappyMoments";
-import NotificationsPanel from "../components/NotificationsPanel";
 import MotivationalQuote from "../components/MotivationalQuote";
 import ChatSidebar from "../components/ChatSidebar";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem("userRole");
   const [profileRoute, setProfileRoute] = useState("/profile-setup");
-  const [moodData, setMoodData] = useState([]);
   const [journalEntries, setJournalEntries] = useState([]);
   const [happyMoments, setHappyMoments] = useState([]);
-  const [notifications, setNotifications] = useState([]);
   const [timeRange, setTimeRange] = useState("week");
   const [selectedMood, setSelectedMood] = useState(null);
 
@@ -47,10 +42,8 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    loadMoodData();
     loadJournalEntries();
     loadHappyMoments();
-    loadNotifications();
   }, [timeRange]);
 
   const loadMoodData = () => {
@@ -99,14 +92,6 @@ const loadHappyMoments = async () => {
     console.error("Failed to load happy moments", err);
   }
 };
-
-
-  const loadNotifications = () => {
-    /* ... */
-  };
-  const generateMoodData = (range) => {
-    /* ... */
-  };
 
   const handleMoodSelect = (mood) => {
     setSelectedMood(mood);

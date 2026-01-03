@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SuccessModal from '../components/SuccessEmojiModal';
 
 const MoodInput = ({ onMoodSelect, selectedMood, onMoodSaved }) => {
   const moods = [
@@ -8,7 +9,7 @@ const MoodInput = ({ onMoodSelect, selectedMood, onMoodSaved }) => {
     { emoji: '🙂', label: 'Good', value: 4, color: '#6BCB77' },
     { emoji: '😄', label: 'Excellent', value: 5, color: '#4D96FF' }
   ];
-
+  const [showSuccess, setShowSuccess] = useState(false);
   // Rich descriptions for accurate analysis
   const moodTexts = {
     1: "I feel very bad and hopeless today ",
@@ -32,8 +33,6 @@ const MoodInput = ({ onMoodSelect, selectedMood, onMoodSaved }) => {
       userId: localStorage.getItem('userId') || 'current-user'
     };
     
-    console.log('Emoji payload:', payload);
-    
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('http://localhost:5000/api/journals', {
@@ -53,10 +52,9 @@ const MoodInput = ({ onMoodSelect, selectedMood, onMoodSaved }) => {
       }
       
       const savedJournal = await res.json();
-      console.log('✅ Journal saved:', savedJournal);
  
       // KEEP YOUR EXISTING ALERT + ADD REFRESH
-      alert(`${moodEmoji} ${moodLabel} saved!`);  // Your alert ✅
+      setShowSuccess(true);
       onMoodSaved?.(moodLabel);  // INSTANT journal list update
       onMoodSelect(null);  // Reset
     } catch (err) {
@@ -91,6 +89,13 @@ const MoodInput = ({ onMoodSelect, selectedMood, onMoodSaved }) => {
       >
         Save Mood
       </button>
+
+      <SuccessModal 
+        isOpen={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Mood Saved!"
+        message="Your daily mood has been recorded successfully. Keep tracking!"
+      />
     </div>
   );
 };
