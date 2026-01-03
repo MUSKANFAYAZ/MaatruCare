@@ -1,36 +1,107 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth'); // Assuming you have auth middleware
+const auth = require('../middleware/auth');
 const Appointment = require('../models/Appointment');
 const Doctor = require('../models/DoctorProfile');
 const User = require('../models/User');
+const twilio = require('twilio');
+const Notification = require('../models/Notification');
+const mongoose = require('mongoose'); // <--- 1. ADDED THIS IMPORT
+
+// Initialize Twilio Client
+// (Only initializing if env vars exist to prevent startup crashes)
+const client = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) 
+  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+  : null;
 
 // @route   POST api/appointments/book
-// @desc    Book an appointment
+// @desc    Book appointment & Notify Doctor (DB + Twilio)
+// @route   POST api/appointments/book
+// @route   POST api/appointments/book
 router.post('/book', auth, async (req, res) => {
+  console.log("------------------------------------------");
+  console.log("🔔 HIT: /api/appointments/book");
+  console.log("📥 Payload Doctor ID:", req.body.doctorId);
+
   try {
     const { doctorId, date, time } = req.body;
+    const patientId = req.user.id; // From the token
 
-    // 1. Get Patient Details (from logged in user)
-    const user = await User.findById(req.user.id).select('-password');
+    // --- HELPER: SAVE NOTIFICATION ---
+    const saveNotification = async (userId, msg) => {
+        try {
+            const notif = new Notification({
+                user: userId,
+                message: msg,
+                type: 'success'
+            });
+            await notif.save();
+            console.log(`✅ Notification SAVED to User ID: ${userId}`);
+        } catch (e) {
+            console.error("❌ Notification Save Failed:", e.message);
+        }
+    };
+
+    // --- CHECK 1: IS IT A VALID MONGODB ID? ---
+    // If NOT valid (e.g. "static-id"), we treat it as a simulation.
+    if (!mongoose.Types.ObjectId.isValid(doctorId)) {
+        console.log("⚠️ Invalid/Static ID detected. Entering Simulation Mode.");
+        
+        // FORCE SAVE notification to Patient (You)
+        await saveNotification(patientId, `(Simulation) Appointment booked with Dr. Muskan on ${date} at ${time}.`);
+        
+        return res.json({ msg: "Static booking successful (Notification Saved)" });
+    }
+
+    // --- CHECK 2: DOES DOCTOR EXIST IN DB? ---
+    const doctorProfile = await Doctor.findById(doctorId);
     
-    // 2. Create New Appointment
+    // IF DOCTOR NOT FOUND -> Treat as simulation instead of error
+    if (!doctorProfile) {
+        console.log("⚠️ Doctor ID is valid format, but NOT found in DB. Simulating success.");
+        
+        // FORCE SAVE notification to Patient (You)
+        await saveNotification(patientId, `(Simulation) Appointment booked with unknown doctor on ${date} at ${time}.`);
+        
+        return res.json({ msg: "Doctor not found, but notification saved for demo." });
+    }
+
+    // --- CHECK 3: REAL BOOKING (Happy Path) ---
+    console.log("✅ Real Doctor Found:", doctorProfile._id);
+
+    // Get Patient Name
+    const user = await User.findById(patientId).select('-password');
+    const patientName = user ? (user.name || "MaatruCare User") : "Guest";
+
+    // Save Appointment
     const newAppointment = new Appointment({
       doctor: doctorId,
-      patientName: user.name,
-      patientPhone: user.phone || 'Not Provided',
+      patientName,
+      patientPhone: user.phone || "Not Provided",
       date,
       time
     });
+    await newAppointment.save();
+    console.log("✅ Appointment Saved to DB");
 
-    const appointment = await newAppointment.save();
-    res.json(appointment);
+    // NOTIFY DOCTOR (If they have a user account)
+    if (doctorProfile.user) {
+        await saveNotification(doctorProfile.user, `New Appointment: ${patientName} on ${date} at ${time}.`);
+    }
+
+    // NOTIFY PATIENT (Also notify you, just in case!)
+    await saveNotification(patientId, `Appointment confirmed with Dr. ${doctorProfile.personalInfo?.name || 'Muskan'} on ${date} at ${time}.`);
+
+    res.json(newAppointment);
 
   } catch (err) {
-    console.error(err.message);
+    console.error("❌ SERVER ERROR:", err.message);
     res.status(500).send('Server Error');
   }
 });
+
+module.exports = router;
+
 
 // @route   GET api/appointments/doctor
 // @desc    Get all appointments for the logged-in doctor

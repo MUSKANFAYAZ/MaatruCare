@@ -1,36 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaPhoneAlt, FaEnvelope, FaCheckCircle, FaArrowLeft, FaRedo } from 'react-icons/fa';
-import axios from 'axios';
-import './DoctorsTeam.css';
-import SwitchDoctorModal from '../components/SwitchDoctorModal';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FaPhoneAlt,
+  FaEnvelope,
+  FaCheckCircle,
+  FaArrowLeft,
+  FaRedo,
+  FaWhatsapp
+} from "react-icons/fa";
+import axios from "axios";
+import "./DoctorsTeam.css";
+import SwitchDoctorModal from "../components/SwitchDoctorModal";
+import BookAppointmentModal from '../components/BookAppointmentModal';
 
 const DoctorsTeam = () => {
   const navigate = useNavigate();
-  const [doctors, setDoctors] = useState([]); 
+  const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1); 
-  const [activeTab, setActiveTab] = useState('All'); 
-  const [selectedDoctor, setSelectedDoctor] = useState(null); 
+  const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState("All");
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   const staticDoctor = {
-    id: 'static-muskan-001', // Unique ID
-    name: 'Dr. Muskan',
-    specialty: 'Gynecologist',
-    email: 'muskanfayaz48@gmail.com',
-    phone: '+91 7875965536', // Valid looking format
-    image: 'https://randomuser.me/api/portraits/women/32.jpg', // Professional ID photo
-    isVerified: true, 
-    location: 'Mysuru, Karnataka'
+    id: "659a123456789abcdef12345", // Unique ID
+    name: "Dr. Muskan",
+    specialty: "Gynecologist",
+    email: "muskanfayaz48@gmail.com",
+    phone: "+91 9535931452", // Valid looking format
+    image: "https://randomuser.me/api/portraits/women/32.jpg", // Professional ID photo
+    isVerified: true,
+    location: "Mysuru, Karnataka",
   };
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/user/profile', {
-        headers: { Authorization: `Bearer ${token}` }
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:5000/api/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.data.selectedDoctor) {
         setSelectedDoctor(res.data.selectedDoctor);
@@ -40,31 +49,33 @@ const DoctorsTeam = () => {
     }
   };
 
-  
   const fetchDoctors = async (pageNum = 1) => {
     try {
       if (pageNum === 1) setLoading(true);
       else setLoadingMore(true);
 
       // USE "seed" TO GET CONSISTENT DATA
-      const response = await fetch(`https://randomuser.me/api/?results=8&nat=in&seed=maatrucare&page=${pageNum}`);
+      const response = await fetch(
+        `https://randomuser.me/api/?results=8&nat=in&seed=maatrucare&page=${pageNum}`
+      );
       const data = await response.json();
-      
+
       const newDoctors = data.results.map((user, index) => ({
-        id: user.login.uuid, 
+        id: user.login.uuid,
         name: `Dr. ${user.name.first} ${user.name.last}`,
-        specialty: (doctors.length + index) % 2 === 0 ? 'Gynecologist' : 'Therapist',
+        specialty:
+          (doctors.length + index) % 2 === 0 ? "Gynecologist" : "Therapist",
         email: user.email,
         phone: user.phone,
         image: user.picture.large,
-        isVerified: Math.random() > 0.3, 
-        location: `${user.location.city}, ${user.location.state}`
+        isVerified: Math.random() > 0.3,
+        location: `${user.location.city}, ${user.location.state}`,
       }));
-      
+
       if (pageNum === 1) {
-       setDoctors([staticDoctor, ...newDoctors]);
+        setDoctors([staticDoctor, ...newDoctors]);
       } else {
-        setDoctors(prev => [...prev, ...newDoctors]);
+        setDoctors((prev) => [...prev, ...newDoctors]);
       }
 
       setLoading(false);
@@ -91,9 +102,10 @@ const DoctorsTeam = () => {
 
   const handleSelectDoctor = async (doctor) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/user/select-doctor', 
-        { doctor }, 
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        "http://localhost:5000/api/user/select-doctor",
+        { doctor },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSelectedDoctor(res.data.selectedDoctor);
@@ -103,16 +115,23 @@ const DoctorsTeam = () => {
   };
 
   const confirmRemoveDoctor = async ({ reason: reasonText, informed }) => {
-    if (!reasonText?.trim()) { alert("Please provide a reason."); return; }
-    if (!informed) { alert("Please select if you informed the doctor."); return; }
+    if (!reasonText?.trim()) {
+      alert("Please provide a reason.");
+      return;
+    }
+    if (!informed) {
+      alert("Please select if you informed the doctor.");
+      return;
+    }
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/user/remove-doctor', 
-        { reason: reasonText, informed }, 
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "http://localhost:5000/api/user/remove-doctor",
+        { reason: reasonText, informed },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSelectedDoctor(null);
-      setShowRemoveModal(false); 
+      setShowRemoveModal(false);
     } catch (err) {
       alert("Failed to remove doctor");
     }
@@ -122,16 +141,17 @@ const DoctorsTeam = () => {
   const getAllDoctors = () => {
     let combinedList = [...doctors];
     if (selectedDoctor) {
-      const exists = combinedList.find(d => d.name === selectedDoctor.name);
+      const exists = combinedList.find((d) => d.name === selectedDoctor.name);
       if (!exists) combinedList.unshift(selectedDoctor);
     }
     return combinedList;
   };
 
   const allDoctors = getAllDoctors();
-  const filteredDoctors = activeTab === 'All' 
-    ? allDoctors 
-    : allDoctors.filter(doc => doc.specialty === activeTab);
+  const filteredDoctors =
+    activeTab === "All"
+      ? allDoctors
+      : allDoctors.filter((doc) => doc.specialty === activeTab);
 
   return (
     <div className="doctors-page-container">
@@ -150,13 +170,13 @@ const DoctorsTeam = () => {
 
       <div className="doctors-content">
         <div className="filter-tabs">
-          {['All', 'Gynecologist', 'Therapist'].map(tab => (
-            <button 
+          {["All", "Gynecologist", "Therapist"].map((tab) => (
+            <button
               key={tab}
-              className={activeTab === tab ? 'active' : ''} 
+              className={activeTab === tab ? "active" : ""}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'All' ? 'All Experts' : tab + 's'}
+              {tab === "All" ? "All Experts" : tab + "s"}
             </button>
           ))}
         </div>
@@ -166,42 +186,87 @@ const DoctorsTeam = () => {
 
         <div className="doctors-grid">
           {filteredDoctors.map((doctor) => {
-            const isSelected = selectedDoctor && selectedDoctor.name === doctor.name;
+            const isSelected =
+              selectedDoctor && selectedDoctor.name === doctor.name;
             const hasSelection = selectedDoctor !== null;
 
             return (
-              <div key={doctor.id} className={`doctor-card ${isSelected ? 'card-selected' : ''} ${hasSelection && !isSelected ? 'card-dimmed' : ''}`}>
-                <div className={`verified-badge ${doctor.isVerified ? 'verified' : 'unverified'}`}>
-                  {doctor.isVerified ? <><FaCheckCircle /> Maatrucare Verified</> : <>Not Verified</>}
+              <div
+                key={doctor.id}
+                className={`doctor-card ${isSelected ? "card-selected" : ""} ${
+                  hasSelection && !isSelected ? "card-dimmed" : ""
+                }`}
+              >
+                <div
+                  className={`verified-badge ${
+                    doctor.isVerified ? "verified" : "unverified"
+                  }`}
+                >
+                  {doctor.isVerified ? (
+                    <>
+                      <FaCheckCircle /> Maatrucare Verified
+                    </>
+                  ) : (
+                    <>Not Verified</>
+                  )}
                 </div>
 
                 <div className="doctor-image-wrapper">
-                  <img src={doctor.image} alt={doctor.name} className="doctor-img" />
+                  <img
+                    src={doctor.image}
+                    alt={doctor.name}
+                    className="doctor-img"
+                  />
                 </div>
 
                 <div className="doctor-info">
                   <h3>{doctor.name}</h3>
                   <span className="specialty-tag">{doctor.specialty}</span>
                   <p className="location-text">{doctor.location}</p>
-                  
+
                   <div className="selection-area">
                     {!hasSelection && (
-                      <button className="choose-btn" onClick={() => handleSelectDoctor(doctor)}>
+                      <button
+                        className="choose-btn"
+                        onClick={() => handleSelectDoctor(doctor)}
+                      >
                         Choose this Doctor
                       </button>
                     )}
                     {isSelected && (
-                        <button className="remove-btn" onClick={() => { setShowRemoveModal(true); }}>
-                        Change Doctor
-                      </button>
+                      <div className="selected-actions-row">
+                        <button
+                          className="remove-btn"
+                          onClick={() => setShowRemoveModal(true)}
+                        >
+                          Change Doctor
+                        </button>
+
+                        <button
+                          className="book-btn"
+                          onClick={() => setShowBookingModal(true)}
+                        >
+                          <FaWhatsapp /> Book Appt
+                        </button>
+                      </div>
                     )}
                   </div>
 
-                  <div className={`action-buttons ${!isSelected ? 'disabled-actions' : ''}`}>
-                    <a href={isSelected ? `tel:${doctor.phone}` : '#'} className="contact-btn call">
+                  <div
+                    className={`action-buttons ${
+                      !isSelected ? "disabled-actions" : ""
+                    }`}
+                  >
+                    <a
+                      href={isSelected ? `tel:${doctor.phone}` : "#"}
+                      className="contact-btn call"
+                    >
                       <FaPhoneAlt /> Call
                     </a>
-                    <a href={isSelected ? `mailto:${doctor.email}` : '#'} className="contact-btn email">
+                    <a
+                      href={isSelected ? `mailto:${doctor.email}` : "#"}
+                      className="contact-btn email"
+                    >
                       <FaEnvelope /> Email
                     </a>
                   </div>
@@ -214,20 +279,34 @@ const DoctorsTeam = () => {
         {/* --- LOAD MORE BUTTON --- */}
         {!loading && (
           <div className="load-more-container">
-            <button className="load-more-btn" onClick={handleLoadMore} disabled={loadingMore}>
-              {loadingMore ? 'Loading...' : 'Load More Doctors'} <FaRedo style={{marginLeft: '8px'}}/>
+            <button
+              className="load-more-btn"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+            >
+              {loadingMore ? "Loading..." : "Load More Doctors"}{" "}
+              <FaRedo style={{ marginLeft: "8px" }} />
             </button>
           </div>
         )}
       </div>
 
       {/* --- MODAL --- */}
+      {selectedDoctor && (
+        <BookAppointmentModal 
+          isOpen={showBookingModal} 
+          onClose={() => setShowBookingModal(false)} 
+          doctor={selectedDoctor}
+        />
+      )}
       {showRemoveModal && (
+        <div>
         <SwitchDoctorModal
           isOpen={showRemoveModal}
           onClose={() => setShowRemoveModal(false)}
           onConfirm={(payload) => confirmRemoveDoctor(payload)}
         />
+        </div>
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { FaWhatsapp, FaCalendarAlt, FaClock, FaTimes } from 'react-icons/fa';
-import './BookAppointmentModal.css'; // We will create this CSS next
+import './BookAppointmentModal.css';
 
 const BookAppointmentModal = ({ isOpen, onClose, doctor }) => {
   const [date, setDate] = useState('');
@@ -17,27 +17,32 @@ const BookAppointmentModal = ({ isOpen, onClose, doctor }) => {
     try {
       const token = localStorage.getItem('token');
       
-      // 1. Save to Database (For Doctor Dashboard)
+      // --- 1. SAVE TO DATABASE & CREATE NOTIFICATION ---
       if (token) {
         try {
+          // A. Save the Appointment
           await axios.post('http://localhost:5000/api/appointments/book', {
-            doctorId: doctor.id, 
+            // FIX: Use _id (MongoDB standard) or fallback to id
+            doctorId: doctor._id || doctor.id, 
             date,
             time
           }, { headers: { Authorization: `Bearer ${token}` } });
+
+          console.log("Notification saved successfully!");
+
         } catch (err) {
-          console.warn("Backend save failed (User might be static/fake), continuing to WhatsApp...");
+          console.warn("Backend save failed (API might be down), but opening WhatsApp anyway.", err);
         }
       }
 
-      // 2. Open WhatsApp
-      const rawPhone = doctor.phone ? doctor.phone.replace(/\D/g, '') : "919999999999"; 
+      // --- 2. OPEN WHATSAPP ---
+      const rawPhone = doctor.phone ? doctor.phone.replace(/\D/g, '') : "9199999999"; 
       const message = `Hello ${doctor.name}, I would like to book an appointment on ${date} at ${time}. - via MaatruCare`;
       const whatsappUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
       
       window.open(whatsappUrl, '_blank');
       
-      // 3. Close Modal
+      // --- 3. CLOSE MODAL ---
       setLoading(false);
       onClose();
 

@@ -1,0 +1,251 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap');
+
+/* --- PAGE BACKGROUND --- */
+.doctor-notif-page {
+  font-family: 'Quicksand', sans-serif;
+  background-color: #F0F2F5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+/* --- FLOATING CARD --- */
+.notif-floating-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 14000px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden; /* Keeps the red header inside rounded corners */
+  min-height: 700px;
+  animation: slideUp 0.4s ease-out;
+}
+
+/* --- HEADER (THE PINK BAR) --- */
+.doctor-notif-header {
+  background-color: #E11D48; /* MaatruCare Pink */
+  padding: 15px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Spreads title and right button */
+  color: white;
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.2);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Back Button (White Circle) */
+.doctor-back-btn {
+  background: white;
+  border: none;
+  font-size: 18px;
+  color: #E11D48; /* Pink Icon */
+  cursor: pointer;
+  width: 40px; 
+  height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.doctor-back-btn:hover {
+  transform: scale(1.05);
+  background-color: #FFF0F3;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+/* Right Action Button (Like 'Edit') */
+.header-action-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.header-action-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: white;
+}
+
+/* --- CONTENT AREA --- */
+.doctor-notif-content {
+  padding: 30px;
+}
+
+/* --- NOTIFICATION CARDS --- */
+.doctor-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.doctor-notif-card {
+  background: #F8FAFC;
+  padding: 15px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.doctor-notif-card:hover {
+  transform: translateY(-2px);
+  background: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  border-color: #cbd5e1;
+}
+
+.notif-icon-box {
+  width: 45px; height: 45px;
+  border-radius: 12px;
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  color: #E11D48;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.notif-main-msg {
+  margin: 0 0 5px 0;
+  font-weight: 600;
+  color: #334155;
+  font-size: 15px;
+}
+
+.notif-timestamp {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* --- EMPTY STATE --- */
+.doctor-empty-state {
+  text-align: center;
+  margin-top: 40px;
+  color: #94a3b8;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.empty-bell-circle {
+  width: 80px; height: 80px;
+  background-color: #f1f5f9;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  color: #cbd5e1;
+  margin-bottom: 15px;
+}
+
+/* ... existing styles for page and header ... */
+
+/* --- THE NOTIFICATION LIST --- */
+.doctor-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between cards */
+  padding-bottom: 20px;
+}
+
+/* --- THE INFO CARD --- */
+.doctor-notif-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start; /* Aligns icon to top */
+  gap: 15px;
+  position: relative;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); /* Subtle shadow */
+  transition: all 0.2s ease;
+}
+
+/* Hover Effect: Lifts up slightly */
+.doctor-notif-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+  border-color: #e2e8f0;
+}
+
+/* --- CARD VARIANTS (Border Colors) --- */
+/* Appointment = Green Border */
+.doctor-notif-card.success {
+  border-left: 5px solid #10B981; /* Emerald Green */
+}
+/* General Info = Pink Border */
+.doctor-notif-card.info {
+  border-left: 5px solid #E11D48; /* MaatruCare Pink */
+}
+
+/* --- ICON BOX --- */
+.notif-icon-box {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%; /* Circle shape */
+  background-color: #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0; /* Prevents icon from squishing */
+}
+
+/* Icon Colors */
+.doctor-notif-card.success .notif-icon-box {
+  background-color: #ECFDF5; /* Light Green Bg */
+  color: #10B981;            /* Green Icon */
+}
+.doctor-notif-card.info .notif-icon-box {
+  background-color: #FFF1F2; /* Light Pink Bg */
+  color: #E11D48;            /* Pink Icon */
+}
+
+/* --- TEXT CONTENT --- */
+.notif-text-content {
+  flex: 1;
+}
+
+.notif-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0 0 5px 0;
+  display: block;
+}
+
+.notif-main-msg {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.notif-timestamp {
+  font-size: 12px;
+  color: #94A3B8;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}

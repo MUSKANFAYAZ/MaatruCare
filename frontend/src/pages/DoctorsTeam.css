@@ -328,3 +328,51 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* Container to hold the two buttons side-by-side */
+.selected-actions-row {
+  display: flex;
+  gap: 10px;        /* Space between buttons */
+  width: 100%;      /* Full width of the card area */
+  margin-top: 10px;
+}
+
+/* Style for the Change Doctor Button (Update if needed) */
+.remove-btn {
+  flex: 1;          /* Takes 50% width */
+  background-color: #64748b;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.remove-btn:hover {
+  background-color: #475569;
+}
+
+/* New Book Appointment Button Style */
+.book-btn {
+  flex: 1;          /* Takes 50% width */
+  background-color: #25D366; /* WhatsApp Green */
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.book-btn:hover {
+  background-color: #128C7E;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}

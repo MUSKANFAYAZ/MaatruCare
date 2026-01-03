@@ -79,81 +79,46 @@ const DoctorDashboard = () => {
   }, [activeTab]);
 
   // FETCH DATA ---
-  useEffect(() => {
+ useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/");
-          return;
-        }
-
+        const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const res = await axios.get(
-          "http://localhost:5000/api/doctor/me",
-          config
-        );
-        const d = res.data;
 
-        setDoctor(d);
-        setDoctorInfo({
-          name: d.personalInfo?.name || "Doctor",
-          specialty: d.personalInfo?.specialty || "Specialist",
-          image:
-            d.personalInfo?.image ||
-            "https://randomuser.me/api/portraits/men/32.jpg",
-          status: "Available",
-        });
+        // 1. Fetch Profile Info
+        const profileRes = await axios.get('http://localhost:5000/api/doctor/me', config);
+        setDoctorInfo(profileRes.data.personalInfo);
 
-        if (d.availability && d.availability.length > 0) {
-            setAvailability(d.availability);
-        }
+        // 2. Fetch REAL Appointments (NEW CODE)
+        const apptRes = await axios.get('http://localhost:5000/api/appointments/doctor', config);
+        
+        // Convert DB format to Dashboard format
+        const formattedPatients = apptRes.data.map(appt => ({
+            id: appt._id,
+            name: appt.patientName,
+            issue: "General Checkup", // You can add an 'issue' field to DB later if needed
+            time: `${appt.date} at ${appt.time}`, // "2025-10-20 at 10:00 AM"
+            status: appt.status // 'Pending'
+        }));
 
-        // Mock Stats based on data (or use real data if available)
+        setMyPatients(formattedPatients);
+
+        // Update Stats based on real data
         setStats({
-          totalPatients: d.stats?.patientsServed || 12,
-          todayAppointments: 3,
-          pendingRequests: 1,
+            totalPatients: formattedPatients.length,
+            pendingRequests: formattedPatients.length, // Or filter by status 'Pending'
+            todayAppointments: 0 // Logic to count today's date
         });
 
-        // Mock Patients (Replace with real API call later)
-        setMyPatients([
-          {
-            id: 101,
-            name: "Sneha Gupta",
-            age: 28,
-            issue: "Prenatal Checkup",
-            time: "10:00 AM",
-            status: "Pending",
-          },
-          {
-            id: 102,
-            name: "Priya Singh",
-            age: 31,
-            issue: "Blood Pressure",
-            time: "11:30 AM",
-            status: "Confirmed",
-          },
-        ]);
-
-        setLoadingProfile(false);
       } catch (err) {
-        if (
-          err.response &&
-          (err.response.status === 400 || err.response.status === 404)
-        ) {
-          console.log("Profile not found, redirecting to setup...");
-          navigate("/doctor-profile-setup");
-        } else {
-          console.error("Server Error:", err);
-          setLoadingProfile(false);
-        }
+        console.error("Error loading dashboard", err);
       }
     };
 
     fetchDashboardData();
-  }, [navigate]);
+  }, []);
 
+  
   useEffect(() => {
     const updateStatus = () => {
       const days = [
@@ -202,6 +167,10 @@ const DoctorDashboard = () => {
       navigate("/doctor-profile-setup");
     }
   };
+
+  const handleNotificationClick = () => {
+    navigate('/doctor-notification');
+  }
 
   const handleAvailabilityChange = (index, field, value) => {
     const newAvail = [...availability];
@@ -302,7 +271,7 @@ const DoctorDashboard = () => {
               {" "}
               Profile
             </button>
-            <button className="doc-chip primary">Notifications</button>
+            <button className="doc-chip primary" onClick={handleNotificationClick}>Notifications </button>
           </div>
         </div>
 
